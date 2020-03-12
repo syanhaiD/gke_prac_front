@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vue-app
+  namespace: prac
+  labels:
+    appName: vue-nginx-app
+    env: prac
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: vue-app
+  template:
+    metadata:
+      labels:
+        run: vue-app
+        ok: yeah
+    spec:
+      containers:
+        - name: vue-app
+          image: [[GCR image url]]
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 80
+              scheme: HTTP
+          volumeMounts:
+            - mountPath: /etc/nginx/custom
+              readOnly: true
+              name: nginx-config
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+            items:
+              - key: nginx.conf
+                path: nginx.conf
